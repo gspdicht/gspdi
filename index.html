@@ -252,22 +252,43 @@
 
 <script>
   // ===== DARK MODE =====
-  function toggleDark() {
-    document.body.classList.toggle("dark");
-    const icon = document.querySelector(".toggle i");
-    if (document.body.classList.contains("dark")) {
-      icon.className = "fas fa-sun";
-      localStorage.setItem("darkMode", "true");
+  const toggleBtn = document.querySelector(".toggle i");
+  const prefersDark = window.matchMedia("(prefers-color-scheme: dark)");
+
+  function applyTheme(mode) {
+    if (mode === "dark") {
+      document.body.classList.add("dark");
+      toggleBtn.className = "fas fa-sun";
     } else {
-      icon.className = "fas fa-moon";
-      localStorage.setItem("darkMode", "false");
+      document.body.classList.remove("dark");
+      toggleBtn.className = "fas fa-moon";
     }
   }
 
-  if (localStorage.getItem("darkMode") === "true") {
-    document.body.classList.add("dark");
-    document.querySelector(".toggle i").className = "fas fa-sun";
+  // 1️⃣ Load theme (prioritas: pilihan user)
+  const savedTheme = localStorage.getItem("theme");
+  if (savedTheme) {
+    applyTheme(savedTheme);
+  } else {
+    applyTheme(prefersDark.matches ? "dark" : "light");
   }
+
+  // 2️⃣ Toggle manual
+  function toggleDark() {
+    const isDark = document.body.classList.contains("dark");
+    const newTheme = isDark ? "light" : "dark";
+    applyTheme(newTheme);
+    localStorage.setItem("theme", newTheme);
+  }
+
+  // 3️⃣ Auto ikut perubahan tema HP (kalau belum pilih manual)
+  prefersDark.addEventListener("change", e => {
+    if (!localStorage.getItem("theme")) {
+      applyTheme(e.matches ? "dark" : "light");
+    }
+  });
+
+
 
   // ===== TANGGAL MINGGU INI OTOMATIS =====
   function getTanggalMingguIni() {
